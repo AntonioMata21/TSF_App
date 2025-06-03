@@ -101,72 +101,99 @@ def train_arima(data, p, d, q, forecast_horizon=30):
     return train, test, predictions, model_fit
 
 # Function to train LightGBM model
-def train_lightgbm(data, target_col, features, forecast_horizon=30):
+def train_lightgbm(data, target_col, features, forecast_horizon=30, num_leaves=31, learning_rate=0.05, n_estimators=100, min_child_samples=20, train_size=None):
     # Crear una copia del dataframe
     df = data.copy()
     
-    # Usar el horizonte de pronóstico como tamaño del conjunto de prueba
-    train_size_int = len(df) - forecast_horizon
-    train_data = df[:train_size_int].copy()
-    test_data = df[train_size_int:].copy()
+    # Determinar si usamos horizonte de pronóstico o porcentaje para dividir los datos
+    if train_size is not None and 0 < train_size < 1:
+        # Enfoque basado en porcentaje (para el modelo completo)
+        # Agregar características de lag a todo el dataset
+        for lag in range(1, features + 1):
+            df[f'lag_{lag}'] = df[target_col].shift(lag)
+        
+        # Eliminar filas con NaN
+        df = df.dropna()
+        
+        # Dividir datos
+        X = df.drop(columns=[target_col])
+        y = df[target_col]
+        
+        # División entrenamiento-prueba
+        train_size_int = int(len(df) * train_size)
+        X_train, X_test = X[:train_size_int], X[train_size_int:]
+        y_train, y_test = y[:train_size_int], y[train_size_int:]
+    else:
+        # Enfoque basado en horizonte de pronóstico (para predicción iterativa)
+        # Usar el horizonte de pronóstico como tamaño del conjunto de prueba
+        train_size_int = len(df) - forecast_horizon
+        train_data = df[:train_size_int].copy()
+        test_data = df[train_size_int:].copy()
+        
+        # Crear características de lag SOLO en los datos de entrenamiento
+        for lag in range(1, features + 1):
+            train_data[f'lag_{lag}'] = train_data[target_col].shift(lag)
+        
+        # Eliminar filas con valores NaN
+        train_data = train_data.dropna()
+        
+        # Preparar X_train e y_train
+        X_train = train_data.drop(columns=[target_col])
+        y_train = train_data[target_col]
+        
+        # Preparar datos de prueba con características de lag
+        # Importante: usar solo datos disponibles hasta el momento de la predicción
+        X_test_list = []
+        y_test = test_data[target_col]
+        
+        # Para cada punto en el conjunto de prueba, crear características usando solo datos pasados
+        current_data = train_data.iloc[-features:].copy()  # Últimas filas del conjunto de entrenamiento
+        
+        for i in range(len(test_data)):
+            # Obtener el valor actual
+            current_value = test_data.iloc[i][target_col]
+            
+            # Crear una fila para predecir el valor actual
+            test_row = pd.DataFrame(index=[0])
+            for lag in range(1, features + 1):
+                if lag <= len(current_data):
+                    test_row[f'lag_{lag}'] = current_data.iloc[-lag][target_col]
+                else:
+                    test_row[f'lag_{lag}'] = np.nan
+            
+            # Guardar la fila para predicción
+            X_test_list.append(test_row)
+            
+            # Actualizar datos actuales para la siguiente predicción
+            new_row = pd.DataFrame({target_col: [current_value]}, index=[current_data.index.max() + pd.Timedelta(days=1)])
+            current_data = pd.concat([current_data, new_row]).iloc[1:]
+        
+        # Convertir lista a DataFrame
+        X_test = pd.concat(X_test_list, ignore_index=True)
     
-    # Crear características de lag SOLO en los datos de entrenamiento
-    for lag in range(1, features + 1):
-        train_data[f'lag_{lag}'] = train_data[target_col].shift(lag)
-    
-    # Eliminar filas con valores NaN
-    train_data = train_data.dropna()
-    
-    # Preparar X_train e y_train
-    X_train = train_data.drop(columns=[target_col])
-    y_train = train_data[target_col]
-    
-    # Entrenar el modelo LightGBM
+    # Configurar y entrenar el modelo LightGBM con parámetros configurables
     params = {
         'objective': 'regression',
         'metric': 'rmse',
-        'num_leaves': 31,
-        'learning_rate': 0.05,
-        'n_estimators': 100
+        'num_leaves': num_leaves,
+        'learning_rate': learning_rate,
+        'n_estimators': n_estimators,
+        'min_child_samples': min_child_samples,
+        'verbose': -1  # Silenciar mensajes de entrenamiento
     }
     
     model = lgb.LGBMRegressor(**params)
     model.fit(X_train, y_train)
     
-    # Preparar datos de prueba con características de lag
-    # Importante: usar solo datos disponibles hasta el momento de la predicción
-    X_test_list = []
-    y_test = test_data[target_col].values
-    
-    # Para cada punto en el conjunto de prueba, crear características usando solo datos pasados
-    current_data = train_data.iloc[-features:].copy()  # Últimas filas del conjunto de entrenamiento
-    
-    for i in range(len(test_data)):
-        # Obtener el valor actual
-        current_value = test_data.iloc[i][target_col]
-        
-        # Crear una fila para predecir el valor actual
-        test_row = pd.DataFrame(index=[0])
-        for lag in range(1, features + 1):
-            if lag <= len(current_data):
-                test_row[f'lag_{lag}'] = current_data.iloc[-lag][target_col]
-            else:
-                test_row[f'lag_{lag}'] = np.nan
-        
-        # Guardar la fila para predicción
-        X_test_list.append(test_row)
-        
-        # Actualizar datos actuales para la siguiente predicción
-        new_row = pd.DataFrame({target_col: [current_value]}, index=[current_data.index.max() + pd.Timedelta(days=1)])
-        current_data = pd.concat([current_data, new_row]).iloc[1:]
-    
-    # Convertir lista a DataFrame
-    X_test = pd.concat(X_test_list, ignore_index=True)
-    
     # Hacer predicciones en el conjunto de prueba
     predictions = model.predict(X_test)
     
-    return y_train, pd.Series(y_test, index=test_data.index), predictions, model
+    # Si usamos el enfoque de horizonte, devolvemos una Serie con el índice correcto
+    if train_size is None or train_size >= 1:
+        return y_train, pd.Series(y_test, index=test_data.index), predictions, model
+    else:
+        # Para el enfoque de porcentaje, devolvemos las Series con sus índices originales
+        return y_train, y_test, predictions, model
 
     # Create features (lags, etc.)
     df = data.copy()
@@ -799,8 +826,44 @@ elif page == "Model Selection":
 
             elif model_info['name'] == "LightGBM":
                 st.subheader("LightGBM Model Parameters")
-                num_features = st.slider("Number of lag features", 1, 30, 7, key="lgbm_features")
-                model_info['params'] = {'num_features': num_features}
+                
+                # Opción para seleccionar el método de entrenamiento
+                training_method = st.radio(
+                    "Training Method",
+                    ["Forecast Horizon", "Percentage Split"],
+                    key="lgbm_training_method"
+                )
+                
+                # Parámetros específicos según el método seleccionado
+                if training_method == "Percentage Split":
+                    train_size = st.slider("Training Data Percentage", 0.5, 0.9, 0.8, 0.05, key="lgbm_train_size")
+                else:
+                    train_size = None
+                
+                # Parámetros comunes
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    num_features = st.slider("Number of lag features", 1, 30, 7, key="lgbm_features")
+                with col2:
+                    num_leaves = st.slider("Number of Leaves", 10, 100, 31, key="lgbm_leaves")
+                with col3:
+                    learning_rate = st.slider("Learning Rate", 0.01, 0.5, 0.05, 0.01, key="lgbm_learning_rate")
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    n_estimators = st.slider("Number of Estimators", 50, 500, 100, key="lgbm_n_estimators")
+                with col2:
+                    min_child_samples = st.slider("Min Child Samples", 1, 50, 20, key="lgbm_min_child_samples")
+                
+                model_info['params'] = {
+                    'num_features': num_features,
+                    'num_leaves': num_leaves,
+                    'learning_rate': learning_rate,
+                    'n_estimators': n_estimators,
+                    'min_child_samples': min_child_samples,
+                    'train_size': train_size,
+                    'training_method': training_method
+                }
 
             elif model_info['name'] == "Exponential Smoothing":
                 st.subheader("Exponential Smoothing Model Parameters")
@@ -1100,10 +1163,24 @@ elif page == "Forecasting":
                 # LightGBM model
                 elif model_name == "LightGBM":
                     with st.spinner("Training LightGBM model..."):
+                        # Obtener todos los parámetros configurables
                         num_features = model_params.get('num_features', 7)
+                        num_leaves = model_params.get('num_leaves', 31)
+                        learning_rate = model_params.get('learning_rate', 0.05)
+                        n_estimators = model_params.get('n_estimators', 100)
+                        min_child_samples = model_params.get('min_child_samples', 20)
+                        train_size = model_params.get('train_size', None)
                         
                         y_train, y_test, predictions, model = train_lightgbm(
-                            processed_data_for_forecast[[value_col]], value_col, num_features, forecast_horizon
+                            processed_data_for_forecast[[value_col]], 
+                            value_col, 
+                            num_features, 
+                            forecast_horizon,
+                            num_leaves=num_leaves,
+                            learning_rate=learning_rate,
+                            n_estimators=n_estimators,
+                            min_child_samples=min_child_samples,
+                            train_size=train_size
                         )
                         
                         # Calculate metrics
