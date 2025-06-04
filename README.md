@@ -18,3 +18,7 @@ Asegúrate de tener Python 3.7+ instalado. Luego, instala las dependencias:
 
 ```bash
 pip install -r requirements.txt
+
+## Commado en terminal para ejecutar el servidor de Streamlit:
+
+C:\Users\Mata\AppData\Local\Programs\Python\Python311\python.exe -m streamlit run app_byTrae.py
