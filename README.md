@@ -56,8 +56,7 @@ time-series-forecaster/
 ├── app_tsf.py          # Main Streamlit application
 ├── README.md              # This file
 └── requirements.txt       # Dependencies
-Data Format
-Data should be in CSV format with at least two columns:
+
 ```
 
 ## Technologies Used
