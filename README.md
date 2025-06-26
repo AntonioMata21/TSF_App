@@ -34,9 +34,9 @@ bashpip install -r requirements.txt
 
 # Usage
 # Run the application
-bashstreamlit run app_byTrae.py
+bashstreamlit run app_tsf.py
 Note: If the streamlit command is not recognized, use:
-bashpython -m streamlit run app_byTrae.py
+bashpython -m streamlit run app_tsf.py
 # Access the application
 Once the command is executed, it will automatically open in your web browser. If it doesn't open automatically, navigate to:
 http://localhost:8501
@@ -52,7 +52,7 @@ Export results: Download charts and predictions
 # Project Structure
 time-series-forecaster/
 │
-├── app_byTrae.py          # Main Streamlit application
+├── app_tsf.py          # Main Streamlit application
 ├── README.md              # This file
 └── requirements.txt       # Dependencies
 Data Format
