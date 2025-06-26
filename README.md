@@ -13,7 +13,7 @@ This application integrates multiple forecasting techniques, from traditional st
 
 ## Features
 - ✅ Interactive and user-friendly web interface
- -✅ Custom CSV data upload
+- ✅ Custom CSV data upload
 - ✅ Automatic time series visualizations
 - ✅ Multiple model comparison
 - ✅ Export results and charts
