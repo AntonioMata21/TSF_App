@@ -1,24 +1,82 @@
-# Time Series Forecasting Application
+# Time Series Forecaster 📈
+A web application built with Streamlit that enables the application of various forecasting methods and models for time series data through an interactive and visual interface.
+Description
+This application integrates multiple forecasting techniques, from traditional statistical methods to machine learning and deep learning algorithms, providing an intuitive interface for analyzing and predicting time series data.
 
-Esta aplicación web permite realizar pronósticos de series de tiempo utilizando diferentes modelos estadísticos y de machine learning.
+## Implemented Methods
 
-## Características
+Statistical Models: ARIMA, Exponential Smoothing, Simple Moving Average (SMA)
+Machine Learning: LightGBM, XGBoost, Random Forest
+Deep Learning: Recurrent Neural Networks (RNN), LSTM
+Statistical Analysis: Stationarity tests, ACF/PACF plots
+Evaluation Metrics: MAE, MSE, MAPE
 
-- Carga de datos desde archivos CSV
-- Preprocesamiento automático de datos
-- Visualización interactiva de series de tiempo
-- Selección de modelos de pronóstico (ARIMA, LightGBM)
-- Comparación de modelos
-- Evaluación de desempeño con métricas (MAE, RMSE, MAPE)
-- Exportación de resultados y gráficas
+# Features
+✅ Interactive and user-friendly web interface
+✅ Custom CSV data upload
+✅ Automatic time series visualizations
+✅ Multiple model comparison
+✅ Export results and charts
+✅ Detailed evaluation metrics
 
-## Requisitos
+# Installation
+# rerequisites
 
-Asegúrate de tener Python 3.7+ instalado. Luego, instala las dependencias:
+Python 3.7 or higher
+pip (Python package manager)
 
-```bash
-pip install -r requirements.txt
+# Step 1: Clone or download the repository
+bashgit clone https://github.com/AntonioMata21/TSF_App.git
+cd time-series-forecaster
+# Step 2: Install dependencies
+# Quick installation with requirements.txt
+bashpip install -r requirements.txt
 
-## Commado en terminal para ejecutar el servidor de Streamlit:
+# Usage
+# Run the application
+bashstreamlit run app_byTrae.py
+Note: If the streamlit command is not recognized, use:
+bashpython -m streamlit run app_byTrae.py
+# Access the application
+Once the command is executed, it will automatically open in your web browser. If it doesn't open automatically, navigate to:
+http://localhost:8501
+# Steps to use the application
 
-C:\Users\Mata\AppData\Local\Programs\Python\Python311\python.exe -m streamlit run app_byTrae.py
+Load data: Upload your CSV file with the time series data
+Configure parameters: Select date and value columns
+Choose models: Select the forecasting methods to apply
+Adjust parameters: Configure hyperparameters for each model
+Run forecasts: Visualize and compare results
+Export results: Download charts and predictions
+
+# Project Structure
+time-series-forecaster/
+│
+├── app_byTrae.py          # Main Streamlit application
+├── README.md              # This file
+└── requirements.txt       # Dependencies
+Data Format
+Data should be in CSV format with at least two columns:
+
+
+# Technologies Used
+
+Streamlit: Web application framework
+Pandas/NumPy: Data manipulation and analysis
+Matplotlib/Seaborn: Data visualization
+Statsmodels: Statistical models for time series
+LightGBM/XGBoost: Gradient boosting algorithms
+TensorFlow/Keras: Deep neural networks
+Scikit-learn: Machine learning tools
+
+# Contributing
+Contributions are welcome! Please:
+
+Fork the project
+Create a feature branch (git checkout -b feature/AmazingFeature)
+Commit your changes (git commit -m 'Add some AmazingFeature')
+Push to the branch (git push origin feature/AmazingFeature)
+Open a Pull Request
+
+# Support
+If you encounter any issues or have suggestions, please open an issue in the repository.
