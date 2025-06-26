@@ -5,19 +5,19 @@ This application integrates multiple forecasting techniques, from traditional st
 
 ## Implemented Methods
 
-Statistical Models: ARIMA, Exponential Smoothing, Simple Moving Average (SMA)
-Machine Learning: LightGBM, XGBoost, Random Forest
-Deep Learning: Recurrent Neural Networks (RNN), LSTM
-Statistical Analysis: Stationarity tests, ACF/PACF plots
-Evaluation Metrics: MAE, MSE, MAPE
+- Statistical Models: ARIMA, Exponential Smoothing, Simple Moving Average (SMA)
+- Machine Learning: LightGBM, XGBoost, Random Forest
+- Deep Learning: Recurrent Neural Networks (RNN), LSTM
+- Statistical Analysis: Stationarity tests, ACF/PACF plots
+- Evaluation Metrics: MAE, MSE, MAPE
 
 ## Features
-✅ Interactive and user-friendly web interface
-✅ Custom CSV data upload
-✅ Automatic time series visualizations
-✅ Multiple model comparison
-✅ Export results and charts
-✅ Detailed evaluation metrics
+- ✅ Interactive and user-friendly web interface
+ -✅ Custom CSV data upload
+- ✅ Automatic time series visualizations
+- ✅ Multiple model comparison
+- ✅ Export results and charts
+- ✅ Detailed evaluation metrics
 
 ## Installation
 ## rerequisites
@@ -30,24 +30,30 @@ bashgit clone https://github.com/AntonioMata21/TSF_App.git
 cd time-series-forecaster
 ### Step 2: Install dependencies
 ### Quick installation with requirements.txt
-bashpip install -r requirements.txt
+```bash
+pip install -r requirements.txt
+```
 
 ### Usage
 ### Run the application
-bashstreamlit run app_tsf.py
+```bash 
+streamlit run app_tsf.py
+```
 Note: If the streamlit command is not recognized, use:
-bashpython -m streamlit run app_tsf.py
+```bash
+python -m streamlit run app_tsf.py
+```
 ### Access the application
 Once the command is executed, it will automatically open in your web browser. If it doesn't open automatically, navigate to:
-http://localhost:8501
+`http://localhost:8501`
 ### Steps to use the application
 
-Load data: Upload your CSV file with the time series data
-Configure parameters: Select date and value columns
-Choose models: Select the forecasting methods to apply
-Adjust parameters: Configure hyperparameters for each model
-Run forecasts: Visualize and compare results
-Export results: Download charts and predictions
+- Load data: Upload your CSV file with the time series data
+- Configure parameters: Select date and value columns
+- Choose models: Select the forecasting methods to apply
+- Adjust parameters: Configure hyperparameters for each model
+- Run forecasts: Visualize and compare results
+- Export results: Download charts and predictions
 
 ## Project Structure
 ```
@@ -61,13 +67,13 @@ time-series-forecaster/
 
 ## Technologies Used
 
-Streamlit: Web application framework
-Pandas/NumPy: Data manipulation and analysis
-Matplotlib/Seaborn: Data visualization
-Statsmodels: Statistical models for time series
-LightGBM/XGBoost: Gradient boosting algorithms
-TensorFlow/Keras: Deep neural networks
-Scikit-learn: Machine learning tools
+- Streamlit: Web application framework
+- Pandas/NumPy: Data manipulation and analysis
+- Matplotlib/Seaborn: Data visualization
+- Statsmodels: Statistical models for time series
+- LightGBM/XGBoost: Gradient boosting algorithms
+- TensorFlow/Keras: Deep neural networks
+- Scikit-learn: Machine learning tools
 
 ## Contributing
 Contributions are welcome! Please:
